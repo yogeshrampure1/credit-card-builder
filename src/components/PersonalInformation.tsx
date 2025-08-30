@@ -2,39 +2,42 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 
 export interface IPersonalInformationProps {
+  personalInfo: any;
   handlePersonalInfoSubmit: (s: IPersonalInfoFormik) => void;
-  fields: any;
+  fields: any[];
 }
 export interface IPersonalInfoFormik {
-  firstName: string;
-  lastName: string;
-  middleName: string;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
   email: string;
   phone: string;
   dob: string;
 }
 
 const PersonalInformation: React.FC<IPersonalInformationProps> = ({
+  personalInfo,
   handlePersonalInfoSubmit,
   fields,
 }) => {
+  const dynamicInitialValues =
+    fields && fields.length > 0
+      ? fields.reduce((acc: any, field: any) => {
+          acc[field.id] = personalInfo[field.id] || "";
+          return acc;
+        }, {})
+      : {};
+
   const personalInfoFormik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      middleName: "",
-      email: "",
-      phone: "",
-      dob: "",
-    },
+    initialValues: dynamicInitialValues,
     validationSchema: Yup.object({
-      firstName: Yup.string()
+      first_name: Yup.string()
         .matches(/^[A-Za-z]{2,50}$/, "First name must be 2–50 letters only.")
         .required("Required"),
-      lastName: Yup.string()
+      last_name: Yup.string()
         .matches(/^[A-Za-z]{2,50}$/, "Last name must be 2–50 letters only.")
         .required("Required"),
-      middleName: Yup.string()
+      middle_name: Yup.string()
         .matches(
           /^[A-Za-z]{0,50}$/,
           "Middle name must be up to 50 letters only."
@@ -56,106 +59,46 @@ const PersonalInformation: React.FC<IPersonalInformationProps> = ({
     },
   });
 
-  console.log(fields);
   return (
     <div>
       <h1>Personal Information</h1>
       <form onSubmit={personalInfoFormik.handleSubmit}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>First Name</label>
-          <input
-            id="firstName"
-            type="text"
-            placeholder="First Name"
-            value={personalInfoFormik.values.firstName}
-            onChange={personalInfoFormik.handleChange}
-            onBlur={personalInfoFormik.handleBlur}
-          />
-          {personalInfoFormik.touched.firstName &&
-            personalInfoFormik.errors.firstName && (
-              <div style={{ color: "red" }}>
-                {personalInfoFormik.errors.firstName}
+        {fields.length > 0 &&
+          fields.map((field: any) => {
+            return (
+              <div
+                key={field.id}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "8px",
+                }}
+              >
+                {field.label}
+                <input
+                  id={field.id}
+                  type="text"
+                  value={personalInfoFormik.values[field.id]}
+                  placeholder={field.placeholder}
+                  onChange={personalInfoFormik.handleChange}
+                  onBlur={personalInfoFormik.handleBlur}
+                />
+                {personalInfoFormik.touched[field.id] &&
+                  typeof personalInfoFormik.errors[field.id] === "string" && (
+                    <div style={{ color: "red" }}>
+                      <>{personalInfoFormik.errors[field.id]}</>
+                    </div>
+                  )}
               </div>
-            )}
-
-          <label>Last Name</label>
-          <input
-            id="lastName"
-            type="text"
-            placeholder="Last Name"
-            value={personalInfoFormik.values.lastName}
-            onChange={personalInfoFormik.handleChange}
-            onBlur={personalInfoFormik.handleBlur}
-          />
-          {personalInfoFormik.touched.lastName &&
-            personalInfoFormik.errors.lastName && (
-              <div style={{ color: "red" }}>
-                {personalInfoFormik.errors.lastName}
-              </div>
-            )}
-
-          <label>Middle Name</label>
-          <input
-            id="middleName"
-            type="text"
-            placeholder="Middle Name"
-            value={personalInfoFormik.values.middleName}
-            onChange={personalInfoFormik.handleChange}
-            onBlur={personalInfoFormik.handleBlur}
-          />
-          {personalInfoFormik.touched.middleName &&
-            personalInfoFormik.errors.middleName && (
-              <div style={{ color: "red" }}>
-                {personalInfoFormik.errors.middleName}
-              </div>
-            )}
-
-          <label>Email</label>
-          <input
-            id="email"
-            type="text"
-            placeholder="Email"
-            value={personalInfoFormik.values.email}
-            onChange={personalInfoFormik.handleChange}
-            onBlur={personalInfoFormik.handleBlur}
-          />
-          {personalInfoFormik.touched.email &&
-            personalInfoFormik.errors.email && (
-              <div style={{ color: "red" }}>
-                {personalInfoFormik.errors.email}
-              </div>
-            )}
-
-          <label>Phone</label>
-          <input
-            id="phone"
-            type="text"
-            placeholder="Phone"
-            value={personalInfoFormik.values.phone}
-            onChange={personalInfoFormik.handleChange}
-            onBlur={personalInfoFormik.handleBlur}
-          />
-          {personalInfoFormik.touched.phone &&
-            personalInfoFormik.errors.phone && (
-              <div style={{ color: "red" }}>
-                {personalInfoFormik.errors.phone}
-              </div>
-            )}
-
-          <label>Date of Birth</label>
-          <input
-            id="dob"
-            type="text"
-            placeholder="YYYY-MM-DD"
-            value={personalInfoFormik.values.dob}
-            onChange={personalInfoFormik.handleChange}
-            onBlur={personalInfoFormik.handleBlur}
-          />
-          {personalInfoFormik.touched.dob && personalInfoFormik.errors.dob && (
-            <div style={{ color: "red" }}>{personalInfoFormik.errors.dob}</div>
-          )}
-        </div>
-        <button type="submit">Next</button>
+            );
+          })}
+        <button
+          //   type="submit"
+          style={{ marginTop: "1rem", border: "2px solid" }}
+          onClick={() => handlePersonalInfoSubmit(personalInfoFormik.values)}
+        >
+          Next
+        </button>
       </form>
     </div>
   );

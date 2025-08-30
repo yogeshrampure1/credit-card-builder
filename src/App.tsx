@@ -11,25 +11,62 @@ import AddressInfo, { type IAddressInfoFormik } from "./components/AddressInfo";
 export default function App() {
   const { steps } = mockdata;
   const [stepId, setStepId] = useState("personal_info");
-  const [fields, setFields] = useState({});
+  const [fields, setFields] = useState<any>([]);
+  const [personalInfo, setPersonalInfo] = useState<any>([]);
+  const [addressInfo, setAddressInfo] = useState<any>([]);
+  const [financialInfo, setFinancialInfo] = useState<any>([]);
   const [personalInfoComplete, setPersonalInfoComplete] = useState(false);
   const [addressInfoComplete, setAddressInfoComplete] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
+
+  const lastSubmittedId = localStorage.getItem("submissionId");
 
   const handlePersonalInfoSubmit = (s: IPersonalInfoFormik) => {
-    console.log(s);
+    setPersonalInfo(s);
     setPersonalInfoComplete(true);
     setStepId("address_info");
+    setFields(steps[1].fields); // Set fields for address_info step
   };
 
   const handleAddressInfoSubmit = (s: IAddressInfoFormik) => {
-    console.log(s);
+    setAddressInfo(s);
     setAddressInfoComplete(true);
     setStepId("financial_info");
+    setFields(steps[2].fields); // Set fields for address_info step
   };
 
-  const handleFinancialInfoSubmit = (s: IFinancialInfoFormik) => {
-    console.log(s);
-    // Optionally show a completion message or reset
+  const handleFinancialInfoSubmit = async (s: IFinancialInfoFormik) => {
+    const payload = {
+      personalInfo: { ...personalInfo },
+      addressInfo: { ...addressInfo },
+      financialInfo: { ...s },
+    };
+    // await SubmitEvent(payload);
+
+    console.log(payload);
+
+    localStorage.setItem("submissionId", JSON.stringify(Math.random()));
+
+    setSuccessMessage(true);
+    setStepId("personal_info");
+    setFields(steps[0].fields);
+    setPersonalInfo([]);
+    setAddressInfo([]);
+    setFinancialInfo([]);
+    setPersonalInfoComplete(false);
+    setAddressInfoComplete(false);
+    setTimeout(() => {
+      setSuccessMessage(false);
+    }, 5000);
+  };
+
+  const handleBack = (toStep: string) => {
+    setStepId(toStep);
+    if (toStep === "personal_info") {
+      setFields(steps[0].fields);
+    } else if (toStep === "address_info") {
+      setFields(steps[1].fields);
+    }
   };
 
   return (
@@ -45,6 +82,17 @@ export default function App() {
         flexDirection: "column",
       }}
     >
+      <h1>Credit Card Application</h1>
+      <p>Please fill in the details to apply for a credit card.</p>
+
+      {lastSubmittedId && (
+        <p style={{ color: "blue" }}>
+          {"Last submission ID: " + lastSubmittedId}
+        </p>
+      )}
+      {successMessage && (
+        <p style={{ color: "green" }}>{"Data filled successfully"}</p>
+      )}
       <div
         style={{
           display: "flex",
@@ -106,6 +154,7 @@ export default function App() {
       <div>
         {stepId === "personal_info" && (
           <PersonalInformation
+            personalInfo={personalInfo}
             handlePersonalInfoSubmit={handlePersonalInfoSubmit}
             fields={fields}
           />
@@ -113,7 +162,12 @@ export default function App() {
       </div>
       <div>
         {stepId === "address_info" && personalInfoComplete && (
-          <AddressInfo handleAddressInfoSubmit={handleAddressInfoSubmit} />
+          <AddressInfo
+            addressInfo={addressInfo}
+            handleAddressInfoSubmit={handleAddressInfoSubmit}
+            fields={fields}
+            handleBack={() => handleBack("personal_info")}
+          />
         )}
       </div>
       <div>
@@ -121,7 +175,10 @@ export default function App() {
           personalInfoComplete &&
           addressInfoComplete && (
             <FinancialInfo
+              financialInfo={financialInfo}
               handleFinancialInfoSubmit={handleFinancialInfoSubmit}
+              fields={fields}
+              handleBack={() => handleBack("address_info")}
             />
           )}
       </div>
