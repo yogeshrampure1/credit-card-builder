@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { mockdata } from "./mockdata";
 import PersonalInformation, {
   type IPersonalInfoFormik,
@@ -18,6 +18,7 @@ export default function App() {
   const [personalInfoComplete, setPersonalInfoComplete] = useState(false);
   const [addressInfoComplete, setAddressInfoComplete] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
+  const [showLastSubmissionId, setShowLastSubmissionId] = useState(false);
 
   const lastSubmittedId = localStorage.getItem("submissionId");
 
@@ -69,6 +70,15 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (lastSubmittedId) {
+      setShowLastSubmissionId(true);
+      setTimeout(() => {
+        setShowLastSubmissionId(false);
+      }, 5000);
+    }
+  }, [lastSubmittedId]);
+
   return (
     <main
       style={{
@@ -85,13 +95,15 @@ export default function App() {
       <h1>Credit Card Application</h1>
       <p>Please fill in the details to apply for a credit card.</p>
 
-      {lastSubmittedId && (
+      {showLastSubmissionId && lastSubmittedId && (
         <p style={{ color: "blue" }}>
           {"Last submission ID: " + lastSubmittedId}
         </p>
       )}
       {successMessage && (
-        <p style={{ color: "green" }}>{"Data filled successfully"}</p>
+        <h3 style={{ color: "green" }}>
+          {"Your application has been submitted successfully!"}
+        </h3>
       )}
       <div
         style={{

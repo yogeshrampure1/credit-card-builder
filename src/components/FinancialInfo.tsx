@@ -9,7 +9,7 @@ export interface IFinancialInfoProps {
 }
 
 export interface IFinancialInfoFormik {
-  annualIncome: string;
+  annual_income: string;
   employment_status: string;
   credit_card_type: string;
 }
@@ -30,22 +30,17 @@ const FinancialInfo: React.FC<IFinancialInfoProps> = ({
   const financialInfoFormik = useFormik({
     initialValues: dynamicInitialValues,
     validationSchema: Yup.object({
-      annualIncome: Yup.number()
+      annual_income: Yup.number()
         .typeError("Annual Income must be a number")
-        .min(10000, "Annual Income must be at least 10,000")
+        .min(10000, "Income must be between ₹10,000 and ₹10,00,000.")
+        .max(1000000, "Income must be between ₹10,000 and ₹10,00,000.")
         .required("Required"),
-      employment_status: Yup.string()
-        .oneOf(
-          ["employed", "self-employed", "student", "unemployed", "retired"],
-          "Select a valid status"
-        )
-        .required("Required"),
-      credit_card_type: Yup.string()
-        .oneOf(
-          ["silver", "gold", "platinum", "student"],
-          "Select a valid card type"
-        )
-        .required("Required"),
+      employment_status: Yup.string().required(
+        "Please select your employment status."
+      ),
+      credit_card_type: Yup.string().required(
+        "Please select a credit card type."
+      ),
     }),
     onSubmit: (values) => {
       handleFinancialInfoSubmit(values);
@@ -114,13 +109,13 @@ const FinancialInfo: React.FC<IFinancialInfoProps> = ({
           </button>
 
           <button
-            // type="submit"
+            disabled={!financialInfoFormik.isValid}
             style={{ marginTop: "1rem", border: "2px solid" }}
             onClick={() =>
               handleFinancialInfoSubmit(financialInfoFormik.values)
             }
           >
-            Submit
+            Submit Application
           </button>
         </div>
       </form>
