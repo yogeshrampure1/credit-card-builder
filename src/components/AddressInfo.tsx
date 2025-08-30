@@ -9,11 +9,10 @@ export interface IAddressInfoProps {
 }
 
 export interface IAddressInfoFormik {
-  addressLine1: string;
-  addressLine2: string;
+  address_line1: string;
+  address_line2: string;
   city: string;
-  state: string;
-  zip: string;
+  postal_code: string;
 }
 
 const AddressInfo: React.FC<IAddressInfoProps> = ({
@@ -33,23 +32,18 @@ const AddressInfo: React.FC<IAddressInfoProps> = ({
   const addressInfoFormik = useFormik({
     initialValues: dynamicInitialValues,
     validationSchema: Yup.object({
-      addressLine1: Yup.string()
-        .min(5, "Address Line 1 must be at least 5 characters")
-        .max(100, "Address Line 1 must be at most 100 characters")
+      address_line1: Yup.string()
+        .min(5, "Street address must be between 5 and 100 characters.")
+        .max(100, "Street address must be between 5 and 100 characters.")
         .required("Required"),
-      addressLine2: Yup.string()
+      address_line2: Yup.string()
         .max(100, "Address Line 2 must be at most 100 characters")
         .notRequired(),
       city: Yup.string()
-        .min(2, "City must be at least 2 characters")
-        .max(50, "City must be at most 50 characters")
+        .matches(/^[A-Za-z]{2,50}$/, "City name must be 2–50 letters.")
         .required("Required"),
-      state: Yup.string()
-        .min(2, "State must be at least 2 characters")
-        .max(50, "State must be at most 50 characters")
-        .required("Required"),
-      zip: Yup.string()
-        .matches(/^\d{5,6}$/, "ZIP must be 5 or 6 digits")
+      postal_code: Yup.string()
+        .matches(/^\d{5,6}$/, "Enter a valid postal code.")
         .required("Required"),
     }),
     onSubmit: (values) => {
@@ -100,7 +94,7 @@ const AddressInfo: React.FC<IAddressInfoProps> = ({
           </button>
 
           <button
-            // type="submit"
+            disabled={!addressInfoFormik.isValid}
             style={{ marginTop: "1rem", border: "2px solid" }}
             onClick={() => handleAddressInfoSubmit(addressInfoFormik.values)}
           >

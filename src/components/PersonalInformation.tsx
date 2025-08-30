@@ -93,7 +93,7 @@ const PersonalInformation: React.FC<IPersonalInformationProps> = ({
             );
           })}
         <button
-          //   type="submit"
+          disabled={!personalInfoFormik.isValid}
           style={{ marginTop: "1rem", border: "2px solid" }}
           onClick={() => handlePersonalInfoSubmit(personalInfoFormik.values)}
         >
